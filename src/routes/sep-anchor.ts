@@ -7,7 +7,6 @@ import {
   randomBytes,
   timingSafeEqual,
 } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Networks, StrKey } from "@stellar/stellar-sdk";
 import type { Deps } from "../context.js";
@@ -19,6 +18,7 @@ import { ApiError } from "../errors.js";
 import { MoneyError, parseTry, parseUsdc } from "../money.js";
 import { readSepQuote } from "../sep-quotes.js";
 import { z } from "zod";
+import { assetText, nodeAssets, type AssetStore } from "../assets.js";
 
 const idSchema = z.string().regex(/^[a-f0-9]{64}$/);
 const quoteId = z.string().regex(/^[A-Za-z0-9_-]{1,100}$/);
@@ -53,7 +53,8 @@ type WebSession = { subject: string; raw: string };
 export function createSepAnchorRoutes(
   deps: Deps,
   sep: SepContext,
-  engine: SepAnchor
+  engine: SepAnchor,
+  assets: AssetStore = nodeAssets(join(process.cwd(), "public"))
 ) {
   const app = new Hono<SepEnv>();
   const origin = new URL(deps.cfg.publicUrl).origin;
@@ -589,9 +590,7 @@ export function createSepAnchorRoutes(
       throw error;
     }
     await engine.get(owner.subject, id);
-    return c.html(
-      await readFile(join(process.cwd(), "public", "sep-anchor.html"), "utf8")
-    );
+    return c.html(await assetText(assets, "/sep-anchor.html"));
   });
   app.get("/sep24/interactive/:id/state", async (c) => {
     const id = idSchema.parse(c.req.param("id"));
@@ -925,9 +924,7 @@ export function createSepAnchorRoutes(
       "Content-Security-Policy",
       "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self' https: wss:; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
     );
-    return c.html(
-      await readFile(join(process.cwd(), "public", "sep-anchor.html"), "utf8")
-    );
+    return c.html(await assetText(assets, "/sep-anchor.html"));
   });
   return app;
 }

@@ -1,11 +1,13 @@
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Hono } from "hono";
+import { assetText, nodeAssets, type AssetStore } from "./assets.js";
 
 export function anchorGateBrowserRoutes(
   publicUrl: string,
-  directory = process.env.PUBLIC_DIR ?? join(process.cwd(), "public")
+  source: string | AssetStore = process.env.PUBLIC_DIR ??
+    join(process.cwd(), "public")
 ) {
+  const assets = typeof source === "string" ? nodeAssets(source) : source;
   const app = new Hono();
   const expected = new URL(publicUrl);
   const fonts = [
@@ -33,24 +35,22 @@ export function anchorGateBrowserRoutes(
       await next();
     });
   app.get("/anchor-gate", async (c) =>
-    c.html(await readFile(join(directory, "anchor-gate.html"), "utf8"))
+    c.html(await assetText(assets, "/anchor-gate.html"))
   );
   app.get("/anchor-gate/bundle.js", async (c) =>
-    c.body(await readFile(join(directory, "anchor-gate.js"), "utf8"), 200, {
+    c.body(await assetText(assets, "/anchor-gate.js"), 200, {
       "Content-Type": "application/javascript; charset=utf-8",
     })
   );
   app.get("/anchor-gate/style.css", async (c) =>
-    c.body(await readFile(join(directory, "anchor-gate.css"), "utf8"), 200, {
+    c.body(await assetText(assets, "/anchor-gate.css"), 200, {
       "Content-Type": "text/css; charset=utf-8",
     })
   );
   for (const name of fonts)
     app.get(`/anchor-gate/fonts/${name}`, async (c) =>
       c.body(
-        new Uint8Array(
-          await readFile(join(directory, "anchor-gate-fonts", name))
-        ),
+        await (await assets.fetch(`/anchor-gate-fonts/${name}`)).arrayBuffer(),
         200,
         { "Content-Type": "font/ttf" }
       )

@@ -11,6 +11,8 @@ import { fmtRate, fmtUsdc } from "./money.js";
 import { createAnchorGateGateway } from "./anchor-gate-rpc.js";
 import { createSepAnchorGateway } from "./sep-anchor-rpc.js";
 import { createSepAnchorIngress } from "./sep-anchor-ingress.js";
+import { nodeAssets } from "./assets.js";
+import { join } from "node:path";
 
 export async function main() {
   const log = createLogger();
@@ -28,7 +30,11 @@ export async function main() {
     sepAnchorIngress: createSepAnchorIngress(config),
   };
   const sep = createSepContext(deps);
-  const app = createApp(deps, sep);
+  const app = createApp(
+    deps,
+    sep,
+    nodeAssets(process.env.PUBLIC_DIR ?? join(process.cwd(), "public"))
+  );
 
   const server = serve({ fetch: app.fetch, port: config.port }, (info) => {
     log.info(

@@ -1,10 +1,18 @@
 # TR Anchor + ZKPassport
 
-Prove eligibility. Keep your document details private.
+Prove you meet the exchange requirements without sharing unnecessary document details.
 
-A Stellar anchor connects bank money with blockchain tokens. We extended
-[Kaan's TR Mock Anchor](https://github.com/kaankacar/tr-mock-anchor) so
-ZKPassport eligibility is verified onchain before the vault can complete an exchange.
+TR Anchor + ZKPassport brings private eligibility checks to a Stellar on/off-ramp,
+which connects bank money with blockchain tokens. Users generate a proof on their
+phone that they meet the exchange's document requirements, such as an age
+threshold. The anchor can check the result without collecting document details
+it does not need.
+
+We extended [Kaan's TR Mock Anchor](https://github.com/kaankacar/tr-mock-anchor)
+with ZKPassport onboarding and onchain eligibility checks that the settlement
+vault enforces before completing an exchange. Users can reuse their eligibility
+while it remains valid for the same wallet and policy, so they do not need a new
+phone proof for every order. Each payment still requires its own authorization.
 
 [Try the demo](https://tr-anchor-zkpassport.up.railway.app/anchor) |
 [See a verified proof](https://stellar.expert/explorer/testnet/tx/08c7c414b6782886f55443c7179a2077f069561e0f5690519d8e22403a1e816e) |

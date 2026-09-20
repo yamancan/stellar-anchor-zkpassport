@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { Networks } from "@stellar/stellar-sdk";
 import { cors } from "hono/cors";
-import { serveStatic } from "@hono/node-server/serve-static";
 import type { AppEnv, Deps } from "./context.js";
 import { ApiError } from "./errors.js";
 import {
@@ -23,10 +22,15 @@ import { createSepContext, type SepContext } from "./sepauth.js";
 import { createSepAnchor } from "./sep-anchor.js";
 import { createSepAnchorRoutes } from "./routes/sep-anchor.js";
 import { createOfacPrecheck } from "./ofac-precheck.js";
+import { nodeAssets, type AssetStore } from "./assets.js";
+import { join } from "node:path";
 
 export function createApp(
   deps: Deps,
-  sep: SepContext = createSepContext(deps)
+  sep: SepContext = createSepContext(deps),
+  assets: AssetStore = nodeAssets(
+    process.env.PUBLIC_DIR ?? join(process.cwd(), "public")
+  )
 ) {
   const app = new Hono<AppEnv>();
   if (
@@ -102,7 +106,12 @@ export function createApp(
     ));
     app.route(
       "/",
-      createSepAnchorRoutes(deps, sep, engine) as unknown as Hono<AppEnv>
+      createSepAnchorRoutes(
+        deps,
+        sep,
+        engine,
+        assets
+      ) as unknown as Hono<AppEnv>
     );
   }
   app.route("/", sep6Routes(deps, sep) as unknown as Hono<AppEnv>);
@@ -110,7 +119,7 @@ export function createApp(
   app.route("/", sep38Routes(deps, sep) as unknown as Hono<AppEnv>);
   app.route("/", zkpassportRoutes(deps, sep) as unknown as Hono<AppEnv>);
   app.route("/", anchorGateRoutes(deps, sep) as unknown as Hono<AppEnv>);
-  app.route("/", anchorGateBrowserRoutes(deps.cfg.publicUrl));
+  app.route("/", anchorGateBrowserRoutes(deps.cfg.publicUrl, assets));
 
   // Revalidate static assets every load so CSS/JS changes reach browsers immediately.
   app.use("/static/*", async (c, next) => {
@@ -129,13 +138,13 @@ export function createApp(
     await next();
     c.header("Cache-Control", "no-cache");
   });
-  app.use(
-    "/static/*",
-    serveStatic({
-      root: "./public",
-      rewriteRequestPath: (p) => p.replace(/^\/static/, ""),
-    })
-  );
+  if (assets)
+    app.get("/static/*", async (c) => {
+      const response = await assets.fetch(c.req.path.replace(/^\/static/, ""));
+      const headers = new Headers(response.headers);
+      headers.set("Cache-Control", "no-cache");
+      return new Response(response.body, { status: response.status, headers });
+    });
 
   return app;
 }

@@ -6,6 +6,9 @@ data/
 !.env.example
 *.log
 .DS_Store
+.cloudflare-private/
+.context/
+output/
 /public/anchor-gate.html
 /public/anchor-gate.js
 /public/anchor-gate.css

@@ -1,0 +1,53 @@
+{
+  "name": "tr-mock-anchor",
+  "main": "src/cloudflare.ts",
+  "compatibility_date": "2026-09-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ANCHOR_STATE",
+        "class_name": "AnchorState",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["AnchorState"],
+    },
+  ],
+  "routes": [
+    {
+      "pattern": "anchor.trionlabs.dev",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "PUBLIC_URL": "https://anchor.trionlabs.dev",
+    "ANCHOR_MODE": "zkpassport",
+    "STELLAR_MODE": "live",
+    "HORIZON_URL": "https://horizon-testnet.stellar.org",
+    "RPC_URL": "https://soroban-testnet.stellar.org",
+    "NETWORK_PASSPHRASE": "Test SDF Network ; September 2015",
+    "USDC_ISSUER": "PENDING_TESTNET_ISSUER",
+    "SEP_ANCHOR_CONTRACT": "PENDING_TESTNET_CONTRACT",
+    "ANCHOR_GATE_ALLOWED_WALLETS": "GDCQRMMGQJBOV3FLQERPE3WMCD5OFQPJXBWECTRSIAQTHGPR5GNXGRJR",
+    "ANCHOR_GATE_MAX_FEE_STROOPS": "1000000",
+    "ANCHOR_GATE_OFAC_ENABLED": "false",
+    "RATE_SOURCE": "static",
+    "STATIC_USDTRY": "47.50",
+    "SPREAD_BPS": "50",
+    "QUOTE_TTL_SECONDS": "120",
+    "OFFRAMP_RATE_LOCK_SECONDS": "1800",
+    "MIN_ONRAMP_TRY": "1",
+    "MAX_ONRAMP_TRY": "475",
+    "MIN_OFFRAMP_USDC": "0.01",
+    "WORKERS": "false",
+  },
+}
