@@ -15,6 +15,15 @@ export function anchorGateBrowserRoutes(
     "playfair-display-italic.ttf",
     "ibm-plex-sans.ttf",
     "ibm-plex-mono.ttf",
+    // zarf.to design kit faces, self-hosted because the page's CSP is 'self'.
+    ...["400", "500", "600"].flatMap((weight) =>
+      ["latin", "latin-ext"].map((subset) => `saira-${weight}-${subset}.woff2`)
+    ),
+    ...["400", "500"].flatMap((weight) =>
+      ["latin", "latin-ext"].map(
+        (subset) => `jetbrains-mono-${weight}-${subset}.woff2`
+      )
+    ),
   ];
   for (const path of [
     "/anchor-gate",
@@ -52,7 +61,9 @@ export function anchorGateBrowserRoutes(
       c.body(
         await (await assets.fetch(`/anchor-gate-fonts/${name}`)).arrayBuffer(),
         200,
-        { "Content-Type": "font/ttf" }
+        {
+          "Content-Type": name.endsWith(".woff2") ? "font/woff2" : "font/ttf",
+        }
       )
     );
   return app;

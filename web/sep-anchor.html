@@ -3,24 +3,35 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TR Anchor / Private eligibility</title>
+    <title>Pre-KYC · Prove eligibility before a Stellar anchor asks for documents</title>
+    <meta
+      name="description"
+      content="Prove you meet the exchange requirements with ZKPassport. Stellar verifies the proof before settlement. Try the exchange with synthetic documents and Testnet tokens."
+    />
     <link rel="stylesheet" href="/static/sep-anchor.css" />
     <script defer src="/static/sep-anchor.js"></script>
   </head>
   <body>
     <header class="bar">
-      <a class="brand" href="/anchor">TR Anchor<span>.</span></a
+      <a class="brand" href="/anchor">Pre-KYC<span>.</span></a
       ><span class="network">STELLAR TESTNET</span>
     </header>
     <main>
-      <p class="eyebrow">ZKPASSPORT / PRIVATE ELIGIBILITY</p>
-      <h1>TRY to tokens.<br /><em>And back.</em></h1>
+      <p class="eyebrow">PRE-KYC + ZKPASSPORT</p>
+      <h1>Prove eligibility.<br /><em>Keep details private.</em></h1>
       <p class="intro">
-        An anchor with private document checks. Your wallet makes the payment.
+        Prove you meet the exchange requirements, such as an age threshold,
+        with ZKPassport on your phone. Share proof of the conditions, without
+        revealing document details the checks do not need. Stellar verifies
+        the proof before the vault can complete your exchange.
+      </p>
+      <p class="intro">
+        Reuse your eligibility for the same wallet and policy while it remains
+        valid. You approve each wallet payment separately.
       </p>
       <p class="notice">
-        Demo only: simulated TRY, mock USDC and synthetic documents. No real
-        money.
+        Try a simulated TRY-to-token exchange on Stellar Testnet. Mock USDC and
+        synthetic documents only. No real money or identity documents.
       </p>
       <section id="launcher" class="card" hidden>
         <div
@@ -30,17 +41,18 @@
           aria-label="Exchange direction"
         >
           <button id="deposit" type="button" aria-pressed="true">
-            Deposit <small>TRY to USDC</small></button
+            Deposit <small>TRY to mock USDC</small></button
           ><button id="withdraw" type="button" aria-pressed="false">
-            Withdraw <small>USDC to TRY</small>
+            Withdraw <small>Preview</small>
           </button>
         </div>
         <h2>Start with your wallet</h2>
         <p id="wallet-description">
-          Select Testnet in Freighter. Login is not a payment.
+          Connect with Freighter on Testnet. Signing in does not authorize a
+          payment.
         </p>
         <button id="connect" class="primary" type="button">
-          Connect wallet + sign login
+          Connect wallet and sign in
         </button>
         <button id="trustline" type="button" hidden>
           Approve mock-USDC trustline
@@ -208,6 +220,7 @@
           </div>
         </dl>
         <ul id="evidence"></ul>
+        <p id="payment-status" class="muted" role="status" hidden></p>
         <a
           id="submitted-payment"
           target="_blank"
@@ -218,11 +231,29 @@
         <p id="full-policy" class="muted"></p>
       </section>
       <details>
-        <summary>What stays private? What is trusted?</summary>
+        <summary>What stays private, and how does the demo work?</summary>
         <p>
-          Age, nationality and document-issuer predicates are checked by a
-          native Soroban proof verifier. Use synthetic documents only. Wallet
-          addresses, token amounts and proof transactions are public.
+          ZKPassport generates the proof on your phone. Our adapted Soroban
+          verifier checks the supported proof, and the anchor contract checks
+          the document requirements and validity. The vault enforces eligibility
+          alongside the order's payment conditions before releasing tokens.
+        </p>
+        <p>
+          Eligibility can serve multiple orders for the same wallet and policy,
+          for up to one hour from the original proof, limited by policy expiry.
+          Each order keeps its own exact amounts. A proof does not authorize a
+          wallet payment.
+        </p>
+        <p>
+          Document details that the checks do not need stay private. Wallet
+          addresses, token amounts and proof transactions are public. A rule
+          accepting only one country can also reveal that country attribute.
+        </p>
+        <p>
+          Ask the team to admit your public wallet before starting. Use a
+          supported synthetic document in ZKPassport developer mode. The
+          withdrawal flow is a preview: public end-to-end validation is still
+          pending.
         </p>
         <p>
           Standard withdrawal payments go to the anchor's custodial intake
@@ -239,8 +270,10 @@
       </details>
     </main>
     <footer>
-      SEP-24 hosted exchange / SEP-10 login / Native Soroban verification<br />Built
-      on Kaan's TR Mock Anchor.
+      A ZKPassport integration by Trion Labs, built on Kaan's TR Mock Anchor.<br />
+      We adapted an existing Soroban verifier and connected eligibility checks
+      to settlement.
+      <a href="https://github.com/yamancan/stellar-anchor-zkpassport/blob/main/docs/ARCHITECTURE_AND_HANDOFF.md">How it works</a>
     </footer>
   </body>
 </html>
