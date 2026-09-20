@@ -22,7 +22,7 @@ import { createSepContext, type SepContext } from "./sepauth.js";
 import { createSepAnchor } from "./sep-anchor.js";
 import { createSepAnchorRoutes } from "./routes/sep-anchor.js";
 import { createOfacPrecheck } from "./ofac-precheck.js";
-import { nodeAssets, type AssetStore } from "./assets.js";
+import { assetText, nodeAssets, type AssetStore } from "./assets.js";
 import { join } from "node:path";
 
 export function createApp(
@@ -40,6 +40,23 @@ export function createApp(
     (deps.anchorGate || deps.sepAnchorGateway)
   )
     deps.ofac ??= createOfacPrecheck();
+
+  // Baseline response headers. Framing is denied everywhere except the two
+  // entry points a wallet is expected to open: the SEP-24 interactive page and
+  // the onboarding page it advertises. Denying those would break real wallets,
+  // and this deployment moves no real value. Referrer-Policy also keeps the
+  // interactive page's ?token= out of the Referer header on outbound links.
+  const FRAMEABLE = /^\/(sep24\/interactive|anchor)(\/|$|\?)/;
+  app.use("*", async (c, next) => {
+    await next();
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    c.header("Strict-Transport-Security", "max-age=31536000");
+    if (!FRAMEABLE.test(c.req.path)) {
+      c.header("X-Frame-Options", "DENY");
+      c.header("Content-Security-Policy", "frame-ancestors 'none'");
+    }
+  });
 
   // Sandbox: wallets/dApps call these directly from the browser. Testnet only.
   app.use(
@@ -120,6 +137,14 @@ export function createApp(
   app.route("/", zkpassportRoutes(deps, sep) as unknown as Hono<AppEnv>);
   app.route("/", anchorGateRoutes(deps, sep) as unknown as Hono<AppEnv>);
   app.route("/", anchorGateBrowserRoutes(deps.cfg.publicUrl, assets));
+
+  // The jury deck. It reads through the asset store rather than the filesystem,
+  // so the same route works on Node and on Workers, and it keeps a clean path
+  // instead of /static/presentation.html, which the policy gate blocks.
+  if (assets)
+    app.get("/presentation", async (c) =>
+      c.html(await assetText(assets, "/presentation.html"))
+    );
 
   // Revalidate static assets every load so CSS/JS changes reach browsers immediately.
   app.use("/static/*", async (c, next) => {
