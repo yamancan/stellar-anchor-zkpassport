@@ -14,7 +14,7 @@ vault enforces before completing an exchange. Users can reuse their eligibility
 while it remains valid for the same wallet and policy, so they do not need a new
 phone proof for every order. Each payment still requires its own authorization.
 
-[Try the demo](https://tr-anchor-zkpassport.up.railway.app/anchor) |
+[Try the demo](https://anchor.trionlabs.dev/anchor) |
 [See a verified proof](https://stellar.expert/explorer/testnet/tx/08c7c414b6782886f55443c7179a2077f069561e0f5690519d8e22403a1e816e) |
 [Technical handoff](docs/ARCHITECTURE_AND_HANDOFF.md)
 
@@ -105,7 +105,7 @@ Tests are evidence of tested behavior, not a security audit.
 
 ## Try the deposit demo
 
-1. Open the [live app](https://tr-anchor-zkpassport.up.railway.app/anchor).
+1. Open the [live app](https://anchor.trionlabs.dev/anchor).
    Use Freighter on **Stellar Testnet**. Ask the team to admit your public wallet
    first; never share a secret key.
 2. Sign in, complete any prompted mock-USDC trustline setup, then review and

@@ -73,8 +73,8 @@ const policySeconds = Number(process.env.TR_ANCHOR_POLICY_SECONDS ?? "72000");
 assert.ok(
   Number.isSafeInteger(policySeconds) &&
     policySeconds >= 3600 &&
-    policySeconds <= 2592000,
-  "Policy lifetime must be between one hour and 30 days"
+    policySeconds <= 86400,
+  "Policy lifetime must be between one hour and 24 hours"
 );
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const networkId = sha(Networks.TESTNET);
