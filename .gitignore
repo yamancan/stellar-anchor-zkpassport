@@ -16,3 +16,7 @@ output/
 /public/sep-anchor.html
 /public/sep-anchor.js
 /public/sep-anchor.css
+.wrangler/
+
+# working copy of the deck; the served one is public/presentation.html
+/presentation.html
