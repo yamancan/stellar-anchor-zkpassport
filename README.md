@@ -1,12 +1,42 @@
-# TR Anchor + ZKPassport
+# Stellar Anchor + ZKPassport
 
-Prove eligibility. Keep your document details private.
+**Privacy-preserving Pre-KYC for Stellar anchors.**
 
-A Stellar anchor connects bank money with blockchain tokens. We extended
-[Kaan's TR Mock Anchor](https://github.com/kaankacar/tr-mock-anchor) so
-ZKPassport eligibility is verified onchain before the vault can complete an exchange.
+Check basic eligibility before asking users to complete the rest of onboarding.
+An anchor connects bank money with blockchain tokens. Finding out late that an
+applicant does not meet its requirements can mean unnecessary user effort,
+document collection and verification work.
 
-[Try the demo](https://tr-anchor-zkpassport.up.railway.app/anchor) |
+This project brings ZKPassport checks into an anchor's SEP-24 hosted flow.
+Users generate a proof on their phone that they meet supported document
+conditions, such as an age threshold or a nationality requirement. The anchor
+verifies the proof on Stellar without collecting document details those checks
+do not need. Any required full KYC and other checks remain separate.
+
+The benefits for users and anchor teams:
+
+- **Earlier eligibility decisions:** check supported requirements before
+  additional onboarding steps. Reducing avoidable reviews and billable checks
+  is a pilot goal, not a measured saving.
+- **Less document disclosure:** check an age threshold without asking for a
+  full date of birth. Share proof of the required condition.
+- **Fewer repeat checks:** reuse accepted eligibility for the same wallet and
+  policy while valid, for up to one hour, without another phone proof.
+- **An anchor-hosted proof flow:** SEP-24 hosts the ZKPassport interaction, so
+  the wallet does not need to generate ZK proofs itself.
+
+We built the working example on
+[Kaan's TR Mock Anchor](https://github.com/kaankacar/tr-mock-anchor), adding
+SEP-24 onboarding, adapting an existing Soroban verifier for supported
+ZKPassport proofs, and connecting eligibility to the settlement vault's rules.
+The vault checks eligibility alongside each order's payment conditions before
+releasing tokens. Each wallet payment remains separately authorized.
+
+**Demonstrated on Testnet:** one fresh phone proof and two completed deposits,
+including a second deposit that reused existing eligibility. Full KYC-provider
+integration and measured cost or onboarding improvements remain pilot goals.
+
+[Try the demo](https://anchor.trionlabs.dev/anchor) |
 [See a verified proof](https://stellar.expert/explorer/testnet/tx/08c7c414b6782886f55443c7179a2077f069561e0f5690519d8e22403a1e816e) |
 [Technical handoff](docs/ARCHITECTURE_AND_HANDOFF.md)
 
