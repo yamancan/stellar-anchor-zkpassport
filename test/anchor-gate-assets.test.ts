@@ -50,10 +50,12 @@ describe("production-built native gate stylesheet and fonts", () => {
     if (directory) await rm(directory, { recursive: true, force: true });
   });
 
-  it("preserves the approved TR Anchor branding in the hosted exchange", async () => {
+  it("preserves the approved Pre-KYC branding in the hosted exchange", async () => {
     const html = await readFile(join(directory, "sep-anchor.html"), "utf8");
-    expect(html).toContain('href="/anchor">TR Anchor<span>.</span>');
-    expect(html).not.toContain(">tr anchor<span>");
+    expect(html).toContain('href="/anchor">Pre-KYC<span>.</span>');
+    expect(html).not.toContain(">pre-kyc<span>");
+    // The upstream credit is not branding and stays put.
+    expect(html).toContain("Kaan's TR Mock Anchor");
   });
 
   it("serves the built stylesheet with same-origin font references and security headers", async () => {

@@ -12,8 +12,10 @@ import {
   Networks,
   Operation,
   StrKey,
+  Transaction,
   TransactionBuilder,
   WebAuth,
+  xdr,
 } from "@stellar/stellar-sdk";
 import { ZKPassport, VERSION } from "@zkpassport/sdk";
 import { countryCodeAlpha3ToName } from "@zkpassport/utils";
@@ -142,6 +144,9 @@ let refreshSequence = 0;
 let appliedRefreshSequence = 0;
 let queuedProof: (() => Promise<void>) | undefined;
 let uncertainAcceptance: Acceptance | undefined;
+let confirmedPaymentHash: string | undefined;
+let paymentMessage = "";
+let paymentCheck: Promise<void> | undefined;
 let problemSource:
   "action" | "acceptance" | "status" | "configuration" | undefined;
 
@@ -265,8 +270,19 @@ function render() {
   show("details", true);
   show("trustline-section", t.status === "pending_trust");
   show("extra-payment-warning", !!t.payment_recovery_required);
+  const pendingPayment = sessionStorage.getItem(`sep-anchor-payment:${id}`);
   const submitted = hash.safeParse(
-    sessionStorage.getItem(`sep-anchor-payment:${id}`)
+    pendingPayment ?? sessionStorage.getItem(`sep-anchor-failed-payment:${id}`)
+  );
+  text("payment-status", paymentMessage);
+  show("payment-status", !!paymentMessage);
+  text(
+    "submitted-payment",
+    pendingPayment
+      ? confirmedPaymentHash === pendingPayment
+        ? "Confirmed wallet payment"
+        : "Check submitted wallet payment"
+      : "Failed wallet payment (no tokens transferred)"
   );
   show("submitted-payment", submitted.success);
   if (submitted.success)
@@ -631,6 +647,7 @@ async function refresh() {
     (problemSource !== "acceptance" && pollingComplete())
   )
     problem();
+  await reconcilePayment();
   render();
 }
 function acceptanceAcknowledged(acceptance: Acceptance) {
@@ -687,7 +704,7 @@ async function prove() {
   );
   const current = client;
   const builder = await current.request({
-    name: "TR Anchor / private eligibility",
+    name: "Pre-KYC / Stellar anchor eligibility",
     purpose:
       "Synthetic age and country eligibility for a Testnet anchor. No real identity document or real money.",
     scope: config.scope,
@@ -794,6 +811,98 @@ async function prove() {
   event("Scan in ZKPassport developer mode using a synthetic document.");
 }
 
+async function reconcilePayment() {
+  if (paymentCheck) return paymentCheck;
+  paymentCheck = checkPayment().finally(() => {
+    paymentCheck = undefined;
+  });
+  return paymentCheck;
+}
+
+async function checkPayment() {
+  const retained = sessionStorage.getItem(`sep-anchor-payment:${id}`);
+  const t = transaction;
+  if (!retained || !t || t.kind !== "withdrawal") return;
+  if (confirmedPaymentHash === retained) return;
+  paymentMessage =
+    "The previous payment is being checked. Do not send another payment while its outcome is unknown.";
+  try {
+    if (!hash.safeParse(retained).success) return;
+    const response = await fetch(
+      `https://horizon-testnet.stellar.org/transactions/${retained}`,
+      {
+        cache: "no-store",
+        signal: AbortSignal.timeout(10000),
+      }
+    );
+    // A missing, expired or unreachable receipt is not proof of failure.
+    if (!response.ok) return;
+    const receipt = z
+      .object({
+        hash: z.literal(retained),
+        successful: z.boolean(),
+        ledger: z.number().int().positive(),
+        envelope_xdr: z.string(),
+        result_xdr: z.string(),
+      })
+      .parse(await response.json());
+    const envelope = TransactionBuilder.fromXdr(
+      receipt.envelope_xdr,
+      Networks.TESTNET
+    );
+    if (!(envelope instanceof Transaction)) return;
+    const operation = envelope.operations[0];
+    const memo = envelope.memo.value;
+    if (
+      hex(envelope.hash()) !== retained ||
+      envelope.source !== t.wallet ||
+      envelope.operations.length !== 1 ||
+      operation?.type !== "payment" ||
+      (operation.source && operation.source !== t.wallet) ||
+      operation.amount !== t.amount_in ||
+      `stellar:${operation.asset.getCode()}:${operation.asset.getIssuer()}` !==
+        t.amount_in_asset ||
+      envelope.memo.type !== "hash" ||
+      !(memo instanceof Uint8Array) ||
+      hex(memo) !== id ||
+      (t.withdraw_anchor_account &&
+        operation.destination !== t.withdraw_anchor_account)
+    )
+      return;
+    const result = xdr.TransactionResult.fromXdr(
+      receipt.result_xdr,
+      "base64"
+    ).result;
+    if (
+      closed ||
+      sessionStorage.getItem(`sep-anchor-payment:${id}`) !== retained
+    )
+      return;
+    if (receipt.successful && result.type === "txSuccess") {
+      confirmedPaymentHash = retained;
+      paymentMessage =
+        "Your wallet payment is confirmed. Do not pay again; this order will continue reconciling automatically.";
+    } else if (!receipt.successful && result.type === "txFailed") {
+      const operationResult = result.results[0];
+      const reason =
+        operationResult?.type === "opInner" &&
+        operationResult.tr.type === "payment"
+          ? operationResult.tr.paymentResult.type
+          : "operationFailed";
+      const description =
+        reason === "paymentUnderfunded"
+          ? "Insufficient balance for this demo token."
+          : `Stellar rejected the payment (${reason}).`;
+      // Keep the failed attempt visible; unlock only this exact confirmed failure.
+      sessionStorage.setItem(`sep-anchor-failed-payment:${id}`, retained);
+      sessionStorage.removeItem(`sep-anchor-payment:${id}`);
+      paymentMessage = `${description} No tokens were transferred; only the network fee was charged. Correct the cause, then explicitly approve a new payment if this order is still ready.`;
+    }
+  } catch {
+    // Fail closed: parsing errors and network failures must never unlock payment.
+  }
+}
+
 async function sendPayment() {
   if (!info)
     throw new Error(
@@ -863,23 +972,22 @@ async function sendPayment() {
       "Payment instructions changed or expired while signing. Nothing was submitted. Review this same order."
     );
   sessionStorage.setItem(`sep-anchor-payment:${id}`, hex(payment.hash()));
+  confirmedPaymentHash = undefined;
+  paymentMessage =
+    "Payment submitted; checking its outcome. Do not send another payment.";
   render();
   status(
     "Submitting one standard Testnet payment. Do not submit another while its outcome is unknown."
   );
-  const response = await fetch(
-    "https://horizon-testnet.stellar.org/transactions",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ tx: signed }),
-      signal: AbortSignal.timeout(30000),
-    }
-  );
-  if (!response.ok)
-    throw new Error(
-      "Payment submission was not confirmed. Its hash is retained; reconcile before retrying."
-    );
+  await fetch("https://horizon-testnet.stellar.org/transactions", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ tx: signed }),
+    signal: AbortSignal.timeout(30000),
+  }).catch(() => undefined);
+  // HTTP failure (including a lost response) does not determine the ledger outcome.
+  // Read the retained hash; the normal status poll keeps checking if still unknown.
+  await reconcilePayment();
   await refresh();
 }
 
@@ -1161,7 +1269,7 @@ async function loadLauncher() {
     );
   } else
     status(
-      "Select Testnet in Freighter to begin. Testnet XLM funding is automatic when needed."
+      "The demo can fund your wallet with Testnet XLM for network fees when needed."
     );
 }
 void action(async () => {
