@@ -1,6 +1,15 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { readFile } from "node:fs/promises";
-import { Asset, Keypair, Networks, StrKey } from "@stellar/stellar-sdk";
+import {
+  Account,
+  Asset,
+  Keypair,
+  Memo,
+  Networks,
+  Operation,
+  StrKey,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk";
 
 const orderId = "ab".repeat(32);
 const wallet = Keypair.fromRawEd25519Seed(Buffer.alloc(32, 1)).publicKey();
@@ -84,6 +93,19 @@ async function page(
     acceptedQuote?: string | null;
     acceptedDestination?: string;
     launcher?: boolean;
+    payment?: {
+      retained?: boolean;
+      receipt:
+        | "failed"
+        | "success"
+        | "missing"
+        | "offline"
+        | "wrong-hash"
+        | "wrong-envelope"
+        | "inconsistent-result"
+        | "malformed";
+      submission?: "reject" | "lost";
+    };
   } = {}
 ) {
   vi.resetModules();
@@ -169,8 +191,99 @@ async function page(
     expires_at: new Date(Date.now() + 600000).toISOString(),
     fee: { total: "0.50", asset: "iso4217:TRY" },
   };
+  let payment = new TransactionBuilder(new Account(wallet, "123"), {
+    fee: "100",
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: issuer,
+        asset: new Asset("USDC", issuer),
+        amount: "2.0000000",
+      })
+    )
+    .addMemo(Memo.hash(Buffer.from(orderId, "hex")))
+    .setTimeout(180)
+    .build();
+  const storage = new Map<string, string>();
+  if (faults.payment) storage.set(`sep-anchor-launcher:${orderId}`, wallet);
+  if (faults.payment?.retained)
+    storage.set(
+      `sep-anchor-payment:${orderId}`,
+      Buffer.from(payment.hash()).toString("hex")
+    );
+  let paymentReceipt = faults.payment?.receipt;
+  const paymentPosts: string[] = [];
+  const receiptReads: string[] = [];
   const fetcher: typeof fetch = async (input, init) => {
     const url = new URL(String(input), location.origin);
+    if (
+      url.origin === "https://horizon-testnet.stellar.org" &&
+      faults.payment
+    ) {
+      if (url.pathname === `/accounts/${wallet}`)
+        return Response.json({ account_id: wallet, sequence: "123" });
+      if (url.pathname === "/transactions" && init?.method === "POST") {
+        const envelope = new URLSearchParams(String(init.body)).get("tx")!;
+        paymentPosts.push(envelope);
+        payment = TransactionBuilder.fromXdr(
+          envelope,
+          Networks.TESTNET
+        ) as typeof payment;
+        if (faults.payment.submission === "lost")
+          throw new TypeError("Failed to fetch");
+        return Response.json(
+          {
+            extras: {
+              result_codes: {
+                transaction: "tx_failed",
+                operations: ["op_underfunded"],
+              },
+            },
+          },
+          { status: 400 }
+        );
+      }
+      if (url.pathname.startsWith("/transactions/")) {
+        receiptReads.push(url.pathname);
+        if (paymentReceipt === "offline")
+          throw new TypeError("Failed to fetch");
+        if (paymentReceipt === "missing")
+          return Response.json({}, { status: 404 });
+        if (paymentReceipt === "malformed")
+          return Response.json({ successful: false });
+        return Response.json({
+          hash:
+            paymentReceipt === "wrong-hash"
+              ? "00".repeat(32)
+              : Buffer.from(payment.hash()).toString("hex"),
+          successful: paymentReceipt === "success",
+          ledger: 4774150,
+          envelope_xdr:
+            paymentReceipt === "wrong-envelope"
+              ? new TransactionBuilder(new Account(wallet, "999"), {
+                  fee: "100",
+                  networkPassphrase: Networks.TESTNET,
+                })
+                  .addOperation(
+                    Operation.payment({
+                      destination: issuer,
+                      asset: new Asset("USDC", issuer),
+                      amount: "2.0000000",
+                    })
+                  )
+                  .setTimeout(180)
+                  .build()
+                  .toXdr()
+              : payment.toXdr(),
+          result_xdr:
+            paymentReceipt === "success" ||
+            paymentReceipt === "inconsistent-result"
+              ? "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAA="
+              : "AAAAAAAAAGT/////AAAAAQAAAAAAAAAB/////gAAAAA=",
+        });
+      }
+    }
     if (url.pathname === `/sep24/interactive/${orderId}/state`) {
       if (stateFailures > 0) {
         stateFailures -= 1;
@@ -253,7 +366,17 @@ async function page(
     }
     throw new Error(`Unexpected browser HTTP request: ${url.pathname}`);
   };
-  vi.doMock("@stellar/freighter-api", () => ({}));
+  vi.doMock("@stellar/freighter-api", () => ({
+    isConnected: async () => ({ isConnected: true }),
+    requestAccess: async () => ({ address: wallet }),
+    getAddress: async () => ({ address: wallet }),
+    getNetworkDetails: async () => ({ networkPassphrase: Networks.TESTNET }),
+    signTransaction: async (envelope: string) => {
+      const tx = TransactionBuilder.fromXdr(envelope, Networks.TESTNET);
+      tx.sign(Keypair.fromRawEd25519Seed(Buffer.alloc(32, 1)));
+      return { signedTxXdr: tx.toXdr(), signerAddress: wallet };
+    },
+  }));
   vi.doMock("@zkpassport/sdk", () => ({
     VERSION: "0.17.1",
     ZKPassport: class {},
@@ -275,7 +398,11 @@ async function page(
     querySelectorAll: () =>
       [...nodes.values()].filter((value) => value.tag === "button"),
   });
-  vi.stubGlobal("sessionStorage", { getItem: () => null });
+  vi.stubGlobal("sessionStorage", {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => storage.set(key, value),
+    removeItem: (key: string) => storage.delete(key),
+  });
   cleanups.push(() => pageEvents.get("pagehide")?.());
   const entry = "../web/sep-anchor.js";
   await import(entry);
@@ -284,6 +411,12 @@ async function page(
     get,
     visible,
     acceptRequests,
+    storage,
+    paymentPosts,
+    receiptReads,
+    setPaymentReceipt(value: typeof paymentReceipt) {
+      paymentReceipt = value;
+    },
     holdAcceptanceResponse() {
       let release!: () => void;
       nextAcceptance = new Promise<void>((resolve) => {
@@ -328,6 +461,79 @@ async function page(
     },
   };
 }
+
+function withdrawalReady() {
+  return {
+    native: {
+      eligible: true,
+      valid_until: Math.floor(Date.now() / 1000) + 3600,
+      confirmed_ledger: 123,
+    },
+    escrowed: false,
+    can_refund: false,
+    ready_for_payment: true,
+    withdraw_anchor_account: issuer,
+    withdraw_memo: Buffer.from(orderId, "hex").toString("base64"),
+    withdraw_memo_type: "hash",
+  };
+}
+
+it("unlocks a retained withdrawal only after confirming its failed ledger receipt", async () => {
+  const browser = await page(withdrawalReady(), {
+    payment: { retained: true, receipt: "failed" },
+  });
+  expect(browser.storage.has(`sep-anchor-payment:${orderId}`)).toBe(false);
+  expect(browser.get("send-payment").disabled).toBe(false);
+  expect(browser.get("submitted-payment").textContent).toContain("Failed");
+  expect(browser.get("payment-status").textContent).toContain(
+    "No tokens were transferred"
+  );
+  expect(browser.paymentPosts).toHaveLength(0);
+});
+
+it.each([
+  "success",
+  "missing",
+  "offline",
+  "wrong-hash",
+  "wrong-envelope",
+  "inconsistent-result",
+  "malformed",
+] as const)("retains the withdrawal lock for a %s receipt", async (receipt) => {
+  const browser = await page(withdrawalReady(), {
+    payment: { retained: true, receipt },
+  });
+  expect(browser.receiptReads.length).toBeGreaterThan(0);
+  expect(browser.storage.has(`sep-anchor-payment:${orderId}`)).toBe(true);
+  expect(browser.get("send-payment").disabled).toBe(true);
+  await browser.update({}, 30000);
+  expect(browser.get("send-payment").disabled).toBe(true);
+  expect(browser.paymentPosts).toHaveLength(0);
+  if (receipt === "success")
+    expect(browser.get("payment-status").textContent).toContain(
+      "Do not pay again"
+    );
+});
+
+it.each(["reject", "lost"] as const)(
+  "reconciles a %s submission without automatically resending",
+  async (submission) => {
+    const browser = await page(withdrawalReady(), {
+      payment: { receipt: "missing", submission },
+    });
+    browser.get("send-payment").trigger("click");
+    await vi.waitFor(() => expect(browser.get("refund").disabled).toBe(false));
+    expect(browser.paymentPosts).toHaveLength(1);
+    expect(browser.get("send-payment").disabled).toBe(true);
+    expect(browser.storage.has(`sep-anchor-payment:${orderId}`)).toBe(true);
+    browser.setPaymentReceipt("failed");
+    await browser.update({});
+    expect(browser.get("send-payment").disabled).toBe(false);
+    expect(browser.paymentPosts).toHaveLength(1);
+    await browser.click("send-payment");
+    expect(browser.paymentPosts).toHaveLength(2);
+  }
+);
 
 it("reconciles a lost quote acceptance response from status without repeating acceptance", async () => {
   const browser = await page(

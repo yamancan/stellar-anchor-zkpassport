@@ -127,7 +127,7 @@ Tests are evidence of tested behavior, not a security audit.
 
 ## Try the deposit demo
 
-1. Open the [live app](https://tr-anchor-zkpassport.up.railway.app/anchor).
+1. Open the [live app](https://anchor.trionlabs.dev/anchor).
    Use Freighter on **Stellar Testnet**. Ask the team to admit your public wallet
    first; never share a secret key.
 2. Sign in, complete any prompted mock-USDC trustline setup, then review and

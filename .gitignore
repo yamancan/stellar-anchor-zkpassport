@@ -6,6 +6,9 @@ data/
 !.env.example
 *.log
 .DS_Store
+.cloudflare-private/
+.context/
+output/
 /public/anchor-gate.html
 /public/anchor-gate.js
 /public/anchor-gate.css
@@ -13,3 +16,7 @@ data/
 /public/sep-anchor.html
 /public/sep-anchor.js
 /public/sep-anchor.css
+.wrangler/
+
+# working copy of the deck; the served one is public/presentation.html
+/presentation.html

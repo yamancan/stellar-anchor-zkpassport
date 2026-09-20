@@ -2,7 +2,21 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-export type DB = DatabaseSync;
+export interface DBStatement {
+  all(...values: unknown[]): Record<string, any>[];
+  get(...values: unknown[]): Record<string, any> | undefined;
+  run(...values: unknown[]): {
+    changes: number | bigint;
+    lastInsertRowid?: number | bigint;
+  };
+}
+
+export interface DB {
+  exec(sql: string): unknown;
+  prepare(sql: string): DBStatement;
+  close(): void;
+  transactionSync?<T>(fn: () => T): T;
+}
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS partners (
@@ -296,7 +310,7 @@ const COLUMN_MIGRATIONS: Array<[table: string, column: string, ddl: string]> = [
   ["customers", "sep12_registered", "INTEGER NOT NULL DEFAULT 0"],
 ];
 
-function addMissingColumns(db: DatabaseSync) {
+function addMissingColumns(db: DB) {
   for (const [table, column, ddl] of COLUMN_MIGRATIONS) {
     const cols = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{
       name: string;
@@ -308,17 +322,22 @@ function addMissingColumns(db: DatabaseSync) {
 
 export function openDb(path: string): DB {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
-  const db = new DatabaseSync(path);
+  const db = new DatabaseSync(path) as unknown as DB;
   db.exec(
     "PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;"
   );
+  initializeDb(db);
+  return db;
+}
+
+export function initializeDb(db: DB): void {
   db.exec(SCHEMA);
   addMissingColumns(db);
-  return db;
 }
 
 /** Run `fn` inside a write transaction. node:sqlite is synchronous, so this is safe to nest-free use. */
 export function tx<T>(db: DB, fn: () => T): T {
+  if (db.transactionSync) return db.transactionSync(fn);
   db.exec("BEGIN IMMEDIATE");
   try {
     const out = fn();

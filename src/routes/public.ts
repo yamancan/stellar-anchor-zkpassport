@@ -345,7 +345,7 @@ export function publicRoutes(deps: Deps, sep: SepContext) {
         `ACCOUNTS=["${sepGateConfigured && deps.sepAnchorIngress ? deps.sepAnchorIngress.account : stellar.treasuryPublicKey}", "${sep.signingKeypair.publicKey()}"]`,
         "",
         "[DOCUMENTATION]",
-        'ORG_NAME="TR Mock Anchor (testnet sandbox)"',
+        'ORG_NAME="Pre-KYC Anchor (testnet sandbox)"',
         `ORG_URL="${cfg.publicUrl}"`,
         legacy
           ? 'ORG_DESCRIPTION="Mock Turkish TRY <-> USDC SEP-6 anchor for Stellar testnet builders. Not a real financial service. No real money moves."'

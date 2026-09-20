@@ -1,65 +1,181 @@
 @font-face {
-  font-family: Display;
-  src: url("/anchor-gate/fonts/playfair-display.ttf");
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: Display;
-  src: url("/anchor-gate/fonts/playfair-display-italic.ttf");
-  font-style: italic;
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: Text;
-  src: url("/anchor-gate/fonts/ibm-plex-sans.ttf");
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Saira";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/saira-600-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/jetbrains-mono-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/jetbrains-mono-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/jetbrains-mono-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/anchor-gate/fonts/jetbrains-mono-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ===========================================================================
+   Pre-KYC anchor — zarf.to design kit, Zen "Paper Porcelain" light theme.
+   Source of truth: zarf/web/packages/ui/lib/styles (tokens + themes/light.css).
+   Silver field, white sheets, charcoal ink, Saira with JetBrains Mono.
+   Monochrome by default: hue appears only where it reports state.
+   ========================================================================= */
 :root {
-  color-scheme: dark;
-  font-family: Text, system-ui, sans-serif;
-  background: #0a0a0a;
-  color: #ddd;
+  --bg: #f8f8fa;
+  --surface: #ffffff;
+  --sunken: #f2f2f5;
+  --ink: #211e23;
+  --muted: #6f6b77;
+  --faint: #8f8b98;
+  --line: #e2e1e6;
+  --line-strong: #d4d2da;
+
+  --btn: #38343d;
+  --btn-hover: #221f27;
+  --btn-ink: #fafafb;
+
+  --ok: #1f5c36;
+  --ok-bg: #edf6f0;
+  --ok-line: #bcddc8;
+  --warn: #6b4a06;
+  --warn-bg: #f8f2e0;
+  --warn-line: #e3d2a3;
+  --bad: #8a2b22;
+  --bad-bg: #faeceb;
+  --bad-line: #e8c4bf;
+
+  --r-input: 12px;
+  --r-card: 24px;
+  --r-pill: 9999px;
+
+  color-scheme: light;
+  font-family: "Saira", ui-sans-serif, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
   line-height: 1.6;
   font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
+  /* The brand's grain, barely there. Inline so it needs no extra route and
+     stays inside the page's img-src 'self' data: policy. */
+  background-image: url("data:image/png;base64,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");
+  background-repeat: repeat;
 }
 a {
   color: inherit;
   text-underline-offset: 4px;
+  text-decoration-color: var(--line-strong);
+}
+a:hover {
+  text-decoration-color: currentColor;
 }
 button,
 input {
   font: inherit;
-  border-radius: 0;
 }
 button {
   cursor: pointer;
-  border: 1px solid #414141;
-  padding: 12px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  padding: 11px 22px;
   background: transparent;
-  color: #eee;
+  color: var(--ink);
   margin: 8px 8px 0 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 button:hover:not(:disabled) {
-  border-color: #a3cdb4;
+  background: var(--sunken);
+  border-color: var(--muted);
 }
 button:disabled {
   opacity: 0.45;
   cursor: wait;
 }
 button.primary {
-  background: #d9e7dc;
-  border-color: #d9e7dc;
-  color: #151916;
+  background: var(--btn);
+  border-color: var(--btn);
+  color: var(--btn-ink);
+}
+button.primary:hover:not(:disabled) {
+  background: var(--btn-hover);
+  border-color: var(--btn-hover);
 }
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 summary:focus-visible {
-  outline: 2px solid #b4e4c5;
-  outline-offset: 4px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 [hidden] {
   display: none !important;
@@ -67,33 +183,34 @@ summary:focus-visible {
 .bar {
   max-width: 1100px;
   margin: auto;
-  padding: 28px 30px;
+  padding: 26px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #282828;
+  border-bottom: 1px solid var(--line);
 }
 .brand {
-  font-family: Display, Georgia, serif;
-  font-style: italic;
-  font-size: 28px;
+  font-weight: 600;
+  font-size: 23px;
+  letter-spacing: -0.03em;
   text-decoration: none;
 }
 .brand span {
-  color: #96cbae;
+  color: var(--faint);
 }
 .network,
 .eyebrow,
 .progress {
-  font-family: monospace;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
   letter-spacing: 0.12em;
   font-size: 11px;
+  text-transform: uppercase;
 }
 .network {
-  color: #a7c9b4;
+  color: var(--muted);
 }
 .eyebrow {
-  color: #999;
+  color: var(--faint);
   margin-top: 0;
 }
 main {
@@ -101,49 +218,57 @@ main {
   margin: 58px auto;
 }
 h1 {
-  font-family: Display, Georgia, serif;
   font-weight: 500;
-  font-size: clamp(48px, 8vw, 76px);
-  letter-spacing: -0.06em;
-  line-height: 1.05;
+  font-size: clamp(44px, 7.4vw, 68px);
+  letter-spacing: -0.035em;
+  line-height: 1.06;
   margin: 16px 0 26px;
 }
+/* The second clause carries the promise; weight and tone separate it, not hue. */
 h1 em {
+  font-style: normal;
   font-weight: 400;
-  color: #a4c7b2;
+  color: var(--muted);
 }
 h2 {
-  font-family: Display, Georgia, serif;
   font-weight: 500;
-  font-size: 30px;
-  line-height: 1.2;
+  font-size: 28px;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
   margin: 24px 0 12px;
 }
 .intro {
-  color: #bbb;
+  color: var(--muted);
   font-size: 17px;
   max-width: 540px;
 }
 .notice {
-  border-left: 2px solid #c5b285;
+  border-left: 2px solid var(--line-strong);
   padding: 10px 16px;
-  color: #c8bd9f;
+  color: var(--muted);
   font-size: 13px;
   margin: 26px 0;
 }
 .card {
-  border: 1px solid #303030;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
   padding: 30px;
-  background: #121212;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(33, 30, 35, 0.02),
+    0 4px 8px -2px rgba(33, 30, 35, 0.03), 0 8px 20px -4px rgba(33, 30, 35, 0.05);
 }
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1px solid #3b3b3b;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  background: var(--surface);
 }
 .tabs button {
   margin: 0;
   border: 0;
+  border-radius: 0;
   padding: 14px;
   display: flex;
   justify-content: center;
@@ -151,39 +276,49 @@ h2 {
   align-items: center;
 }
 .tabs button[aria-pressed="true"] {
-  background: #d9e7dc;
-  color: #151916;
+  background: var(--btn);
+  color: var(--btn-ink);
+}
+.tabs button[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--btn-hover);
 }
 .tabs small {
   font-size: 11px;
+  color: inherit;
+  opacity: 0.72;
 }
 .progress {
   display: flex;
   justify-content: space-between;
-  color: #9cbaa8;
+  color: var(--faint);
 }
 label {
   display: block;
   font-size: 13px;
   margin: 18px 0 7px;
-  color: #bbb;
+  color: var(--muted);
 }
 input {
   width: 100%;
-  padding: 12px;
-  background: #0b0b0b;
-  color: #eee;
-  border: 1px solid #444;
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-input);
   font-size: 17px;
 }
+input:focus {
+  border-color: var(--muted);
+}
 input[readonly] {
-  font: 12px monospace;
+  font: 12px "JetBrains Mono", ui-monospace, monospace;
+  background: var(--sunken);
   overflow: auto;
 }
 small,
 .muted {
   display: block;
-  color: #999;
+  color: var(--muted);
   font-size: 12px;
 }
 small {
@@ -196,11 +331,11 @@ dl > div {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  padding: 9px 0;
-  border-bottom: 1px solid #292929;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
 }
 dt {
-  color: #999;
+  color: var(--muted);
   font-size: 13px;
 }
 dd {
@@ -213,13 +348,16 @@ dd {
 #amount-in,
 #amount-out {
   font-size: 19px;
+  font-variant-numeric: tabular-nums;
 }
 .qr {
   margin: 24px auto 10px;
   background: #fff;
   width: fit-content;
   max-width: 100%;
-  padding: 4px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
 }
 .qr canvas {
   display: block;
@@ -239,33 +377,35 @@ dd {
   margin: 12px auto;
 }
 .status {
-  color: #a4c7b2;
+  color: var(--muted);
   font-size: 14px;
   min-height: 25px;
 }
 .problem {
-  border-left: 2px solid #dd9c92;
+  border-left: 2px solid var(--bad-line);
+  border-radius: 0 12px 12px 0;
   padding: 12px 16px;
-  color: #dfaaa0;
-  background: #1e1313;
+  color: var(--bad);
+  background: var(--bad-bg);
   font-size: 14px;
 }
 details {
-  border-top: 1px solid #303030;
+  border-top: 1px solid var(--line);
   padding: 18px 0;
   font-size: 13px;
-  color: #aaa;
+  color: var(--muted);
 }
 summary {
   cursor: pointer;
-  color: #ccc;
+  color: var(--ink);
 }
 details p {
   margin: 16px 0;
 }
 .chain-status {
-  border: 1px solid #303b33;
-  background: #101310;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--sunken);
   margin: 24px 0;
   padding: 24px;
 }
@@ -278,10 +418,9 @@ details p {
 }
 .chain-status-heading h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 23px;
 }
 .chain-status a {
-  color: #b4d8c1;
   font-size: 13px;
 }
 .chain-status dt {
@@ -299,37 +438,45 @@ details p {
   display: none;
 }
 #evidence li {
-  border-left: 2px solid #555;
-  background: #171717;
+  border-left: 2px solid var(--line-strong);
+  border-radius: 0 10px 10px 0;
+  background: var(--surface);
   padding: 9px 12px;
   margin: 8px 0;
   font-size: 13px;
   overflow-wrap: anywhere;
 }
 #evidence .chain-confirmed {
-  border-color: #52745f;
-  background: #161c17;
+  border-color: var(--ok-line);
+  background: var(--ok-bg);
+  color: var(--ok);
 }
 #evidence .chain-failed {
-  border-color: #bd7878;
-  background: #231919;
+  border-color: var(--bad-line);
+  background: var(--bad-bg);
+  color: var(--bad);
 }
 #order-id,
 #owner {
-  font-family: monospace;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 11px;
 }
 footer {
-  border-top: 1px solid #292929;
+  border-top: 1px solid var(--line);
   max-width: 1100px;
   margin: auto;
   padding: 26px 30px;
-  color: #777;
+  color: var(--faint);
   font-size: 11px;
 }
 #payout-warning {
-  color: #d7ba85;
+  color: var(--warn);
   font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
 @media (max-width: 520px) {
   .bar {
@@ -341,6 +488,7 @@ footer {
   .card,
   .chain-status {
     padding: 20px;
+    border-radius: 18px;
   }
   main {
     margin: 35px auto;
@@ -352,7 +500,7 @@ footer {
     margin: 0;
   }
   h2 {
-    font-size: 27px;
+    font-size: 25px;
   }
   button.primary {
     width: 100%;

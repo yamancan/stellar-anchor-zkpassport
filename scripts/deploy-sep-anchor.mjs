@@ -57,7 +57,25 @@ const artifacts = {
     hash: "e6ff58f1115fbdf71488caf2599f74e12e72dc21ddea1c231b013cdce6a88828",
   },
 };
-const source = "GAZOT6YMKME6R7DYCLPUOI22IEQGCO5LX3ZJ24GOZ3NVPNPDIJQXCKKR";
+const source =
+  process.env.TR_ANCHOR_DEPLOYER_PUBLIC ??
+  "GAZOT6YMKME6R7DYCLPUOI22IEQGCO5LX3ZJ24GOZ3NVPNPDIJQXCKKR";
+const provider =
+  process.env.TR_ANCHOR_PROVIDER_PUBLIC ??
+  "GDAHV4MVSXLCR4ELY4JK3F6WNEQCONAZTLTKBGDJZARXBRGWMTTIMK22";
+const bankNotary =
+  process.env.TR_ANCHOR_NOTARY_PUBLIC ??
+  "GCCDVX4UKCL36M3566XGK6HGTFINNSBKMG3DVCLKP2G3JCPIJL6IWUD2";
+const token =
+  process.env.TR_ANCHOR_TOKEN_CONTRACT ??
+  "CDC35FLF2CZWYA2EFBMW4GCCL2BBYZZGXRZGLJLEAE5UR4CIDUA44OXE";
+const policySeconds = Number(process.env.TR_ANCHOR_POLICY_SECONDS ?? "72000");
+assert.ok(
+  Number.isSafeInteger(policySeconds) &&
+    policySeconds >= 3600 &&
+    policySeconds <= 86400,
+  "Policy lifetime must be between one hour and 24 hours"
+);
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const networkId = sha(Networks.TESTNET);
 const server = new rpc.Server("https://soroban-testnet.stellar.org", {
@@ -72,9 +90,9 @@ const sanctionsRoot =
 const vkHash =
   "03dbb84b656cdf3b9f93d809c530b4c3901fe5be6f56c424a04ae827ebe45a08";
 const configAt = (time, verifier) => ({
-  provider: "GDAHV4MVSXLCR4ELY4JK3F6WNEQCONAZTLTKBGDJZARXBRGWMTTIMK22",
-  bank_notary: "GCCDVX4UKCL36M3566XGK6HGTFINNSBKMG3DVCLKP2G3JCPIJL6IWUD2",
-  token: "CDC35FLF2CZWYA2EFBMW4GCCL2BBYZZGXRZGLJLEAE5UR4CIDUA44OXE",
+  provider,
+  bank_notary: bankNotary,
+  token,
   verifier,
   verifier_wasm_hash: artifacts.verifier.hash,
   verifier_vk_hash: vkHash,
@@ -91,7 +109,7 @@ const configAt = (time, verifier) => ({
   proof_bytes: 10240,
   external_inputs: 13,
   max_proof_age: 3600,
-  policy_valid_until: time + 72000,
+  policy_valid_until: time + policySeconds,
   max_order_lifetime: 3600,
   max_amount: "100000000",
   max_try_minor: 50000,
@@ -432,7 +450,7 @@ async function main() {
   assert.deepEqual(
     report.config,
     configAt(
-      report.config.policy_valid_until - 72000,
+      report.config.policy_valid_until - policySeconds,
       report.contracts.verifier
     )
   );
